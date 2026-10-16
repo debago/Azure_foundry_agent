@@ -1,0 +1,40 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/Azure/azure-dev/main/schemas/v1.0/azure.yaml.json
+
+name: devops-logs-analysis-agent
+resourceGroup: Accenture_VM_ARA
+services:
+    ai-project:
+        host: azure.ai.project
+        deployments:
+            - model:
+                format: OpenAI
+                name: gpt-5
+                version: "2025-08-07"
+              name: gpt-5
+              sku:
+                capacity: 50
+                name: GlobalStandard
+        endpoint: https://tes-foundry-3009.services.ai.azure.com/api/projects/devops-logs-analysis-agent-dev
+    devops-logs-analysis-agent:
+        project: .
+        host: azure.ai.agent
+        language: python
+        uses:
+            - ai-project
+        env:
+            AZURE_AI_MODEL_DEPLOYMENT_NAME: ${AZURE_AI_MODEL_DEPLOYMENT_NAME}
+        codeConfiguration:
+            dependencyResolution: remote_build
+            entryPoint: agent.py
+            runtime: python_3_14
+        container:
+            resources:
+                cpu: "0.5"
+                memory: 1Gi
+        kind: hosted
+        name: devops-logs-analysis-agent
+        protocols:
+            - protocol: responses
+              version: 2.0.0
+infra:
+    provider: microsoft.foundry
